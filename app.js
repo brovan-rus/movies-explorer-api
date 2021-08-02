@@ -8,6 +8,11 @@ const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
 const limiter = require('./middlewares/rate-limiter');
+const auth = require('./middlewares/auth');
+const { login, createUser } = require('./controllers/user');
+const { validateLogin, validateUserCreate } = require('./middlewares/validate');
+const userRoutes = require('./routes/user');
+const movieRoutes = require('./routes/movie');
 
 const whitelist = ['http://localhost:3000', 'https://localhost:3000'];
 
@@ -29,8 +34,14 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(requestLogger);
+app.post('/signup', validateUserCreate, createUser);
+app.post('/signin', validateLogin, login);
+app.use(auth);
+app.use('/movies', movieRoutes);
+app.use('/users', userRoutes);
+
 mongoose
-  .connect('mongodb://localhost:27017/movies-explorer-users', {
+  .connect('mongodb://localhost:27017/bitfilmsdb', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
@@ -43,8 +54,8 @@ app.use((req, res, next) => {
 });
 
 app.use(errorLogger);
-app.use(errors());
 
+app.use(errors());
 app.use((err, req, res, next) => {
   const { errCode = 500, message = 'Ошибка сервера' } = err;
   res.status(errCode).send({ message });

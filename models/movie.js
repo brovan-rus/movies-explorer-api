@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const movieSchema = new mongoose.Schema({
   country: {
@@ -41,6 +43,16 @@ const movieSchema = new mongoose.Schema({
     },
   },
 
+  image: {
+    type: String,
+    required: true,
+    validate: {
+      validator(v) {
+        return /https?:\/{2}[\w\-._~:/?#[\]@!$&'()*+,;=]+/gi.test(v);
+      },
+    },
+  },
+
   thumbnail: {
     type: String,
     required: true,
@@ -73,7 +85,7 @@ const movieSchema = new mongoose.Schema({
     },
   },
 
-  nameEn: {
+  nameEN: {
     type: String,
     minlength: 2,
     required: true,
@@ -84,5 +96,17 @@ const movieSchema = new mongoose.Schema({
     },
   },
 });
+
+movieSchema.statics.checkMovieEntryOwner = function (movieId, userId) {
+  return this.findOne({ _id: movieId }).then((movie) => {
+    if (!movie) {
+      return Promise.reject(new NotFoundError('Запрашиваемая карточка не найдена'));
+    }
+    if (!(movie.owner.toString() === userId)) {
+      return Promise.reject(new ForbiddenError('Недостаточно прав для совершения действия'));
+    }
+    return movie;
+  });
+};
 
 module.exports = mongoose.model('movie', movieSchema);
