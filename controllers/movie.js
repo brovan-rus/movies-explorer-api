@@ -1,4 +1,5 @@
 const Movie = require('../models/movie');
+const { serverMessages } = require('../utils/constants');
 
 const getAllMovies = (req, res, next) => {
   Movie.find({})
@@ -43,7 +44,7 @@ const deleteMovie = (req, res, next) => {
   const { movieId } = req.params;
   Movie.checkMovieEntryOwner(movieId, req.user)
     .then(() => Movie.deleteOne({ _id: movieId }))
-    .then(() => res.status(200).send({ message: `Запись о фильме ${movieId} удалена` }))
+    .then(() => res.status(200).send({ message: serverMessages.movieDeleteMessage }))
     .catch(next);
 };
 

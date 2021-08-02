@@ -8,23 +8,9 @@ const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
 const limiter = require('./middlewares/rate-limiter');
-const auth = require('./middlewares/auth');
-const { login, createUser } = require('./controllers/user');
-const { validateLogin, validateUserCreate } = require('./middlewares/validate');
-const userRoutes = require('./routes/user');
-const movieRoutes = require('./routes/movie');
-
-const whitelist = ['http://localhost:3000', 'https://localhost:3000'];
-
-const corsOptions = {
-  origin(origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-};
+const routes = require('./routes/index');
+const errorsHandler = require('./middlewares/errorsHandler');
+const { corsOptions, errorMessages } = require('./utils/constants');
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -34,11 +20,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(requestLogger);
-app.post('/signup', validateUserCreate, createUser);
-app.post('/signin', validateLogin, login);
-app.use(auth);
-app.use('/movies', movieRoutes);
-app.use('/users', userRoutes);
+app.use(routes);
 
 mongoose
   .connect('mongodb://localhost:27017/bitfilmsdb', {
@@ -50,17 +32,12 @@ mongoose
   .catch((err) => console.error(`Произошла ошибка подключения к базе данных ${err}`));
 
 app.use((req, res, next) => {
-  next(new NotFoundError('Запрашиваемый ресурс не найден'));
+  next(new NotFoundError(errorMessages.notFoundOnSiteErrorMessage));
 });
 
 app.use(errorLogger);
-
 app.use(errors());
-app.use((err, req, res, next) => {
-  const { errCode = 500, message = 'Ошибка сервера' } = err;
-  res.status(errCode).send({ message });
-  console.log(err);
-});
+app.use(errorsHandler);
 
 app.listen(port, () => {
   console.log(`We are live on ${port}`);

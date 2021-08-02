@@ -5,12 +5,13 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const DataConflictError = require('../errors/DataConflictError');
+const { errorMessages } = require('../utils/constants');
 
 const findUser = (req, res, next) => {
   const id = req.user;
   User.findById(id)
     .orFail(() => {
-      throw new NotFoundError('Запрашиваемый пользователь не найден');
+      throw new NotFoundError(errorMessages.notFoundUserErrorMessage);
     })
     .then((user) => res.send({ data: user }))
     .catch(next);
@@ -27,7 +28,7 @@ const createUser = (req, res, next) => {
     )
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
-        next(new DataConflictError('Пользователь с данным email уже существует'));
+        next(new DataConflictError(errorMessages.emailConflictErrorMessage));
       }
       next(err);
     });
@@ -36,11 +37,11 @@ const createUser = (req, res, next) => {
 const updateProfile = (req, res, next) => {
   const { name, email } = req.body;
   User.updateOne({ _id: req.user }, { name, email }, { runValidators: true, new: true })
-    .orFail(() => new NotFoundError('Запрашиваемый пользователь не найден'))
+    .orFail(() => new NotFoundError(errorMessages.notFoundUserErrorMessage))
     .then(() => res.status(200).send({ data: { name, email } }))
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
-        next(new DataConflictError('Пользователь с данным email уже существует'));
+        next(new DataConflictError(errorMessages.emailConflictErrorMessage));
       }
       next(err);
     });

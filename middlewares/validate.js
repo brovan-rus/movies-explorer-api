@@ -1,10 +1,11 @@
 const validator = require('validator');
 const { celebrate, Joi } = require('celebrate');
 const ValidationError = require('../errors/ValidationError');
+const { errorMessages } = require('../utils/constants');
 
 const validateEmptyBodyRequest = (req, res, next) => {
   if (Object.keys(req.body).length > 0) {
-    throw new ValidationError('Переданы некорректные данные');
+    throw new ValidationError(errorMessages.validationErrorMessage);
   }
   next();
 };
@@ -18,7 +19,7 @@ const validateMovieLinks = (req, res, next) => {
       validator.isURL(thumbnail, { require_protocol: true })
     )
   ) {
-    throw new ValidationError('Переданы некорректные данные');
+    throw new ValidationError(errorMessages.validationErrorMessage);
   }
   next();
 };
@@ -63,7 +64,7 @@ const validateProfileUpdate = celebrate({
 const validateMovieIdParams = (req, res, next) => {
   const id = req.params.movieId;
   if (!(validator.isMongoId(id) && id)) {
-    throw new ValidationError('Переданы некорректные данные');
+    throw new ValidationError(errorMessages.validationErrorMessage);
   }
   next();
 };

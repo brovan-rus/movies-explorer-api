@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const { errorMessages } = require('../utils/constants');
 
 const movieSchema = new mongoose.Schema({
   country: {
@@ -100,10 +101,10 @@ const movieSchema = new mongoose.Schema({
 movieSchema.statics.checkMovieEntryOwner = function (movieId, userId) {
   return this.findOne({ _id: movieId }).then((movie) => {
     if (!movie) {
-      return Promise.reject(new NotFoundError('Запрашиваемая карточка не найдена'));
+      return Promise.reject(new NotFoundError(errorMessages.notFoundErrorDBMessage));
     }
     if (!(movie.owner.toString() === userId)) {
-      return Promise.reject(new ForbiddenError('Недостаточно прав для совершения действия'));
+      return Promise.reject(new ForbiddenError(errorMessages.forbiddenErrorMessage));
     }
     return movie;
   });
