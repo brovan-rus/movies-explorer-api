@@ -10,12 +10,12 @@ const NotFoundError = require('./errors/NotFoundError');
 const limiter = require('./middlewares/rate-limiter');
 const routes = require('./routes/index');
 const errorsHandler = require('./middlewares/errorsHandler');
-const { corsOptions, errorMessages } = require('./utils/constants');
+const { errorMessages } = require('./utils/constants');
 
 const port = process.env.PORT || 3000;
 const app = express();
+app.use(cors());
 app.use(limiter);
-app.use(cors(corsOptions));
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
