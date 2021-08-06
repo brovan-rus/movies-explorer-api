@@ -12,7 +12,7 @@ const errorMessages = {
 };
 
 const serverMessages = {
-  movieDeleteMessage: `Запись о фильме удалена`,
+  movieDeleteMessage: 'Запись о фильме удалена',
 };
 
 const whitelist = ['http://localhost:3000', 'https://localhost:3000'];

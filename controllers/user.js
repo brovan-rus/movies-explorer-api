@@ -18,14 +18,18 @@ const findUser = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) =>
-      User.create({ email, about, avatar, name, password: hash }).then(() =>
-        res.status(201).send({ data: { name, about, avatar, email } }),
-      ),
-    )
+    .then((hash) => User.create({
+      email, about, avatar, name, password: hash,
+    }).then(() => res.status(201).send({
+      data: {
+        name, about, avatar, email,
+      },
+    })))
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
         next(new DataConflictError(errorMessages.emailConflictErrorMessage));

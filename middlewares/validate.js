@@ -11,12 +11,12 @@ const validateEmptyBodyRequest = (req, res, next) => {
 };
 
 const validateMovieLinks = (req, res, next) => {
-  const { image, trailer, thumbnail } = req.body.link;
+  const { image, trailer, thumbnail } = req.body;
   if (
     !(
-      validator.isURL(image, { require_protocol: true }) &&
-      validator.isURL(trailer, { require_protocol: true }) &&
-      validator.isURL(thumbnail, { require_protocol: true })
+      validator.isURL(image, { require_protocol: true })
+      && validator.isURL(trailer, { require_protocol: true })
+      && validator.isURL(thumbnail, { require_protocol: true })
     )
   ) {
     throw new ValidationError(errorMessages.validationErrorMessage);
@@ -42,9 +42,7 @@ const validateMovieCreate = celebrate({
     image: Joi.string().required(),
     trailer: Joi.string().required(),
     thumbnail: Joi.string().required(),
-    movieId: Joi.string()
-      .regex(/^[0-9a-fA-F]{24}$/)
-      .required(),
+    movieId: Joi.number().required(),
     nameRU: Joi.string()
       .regex(/[а-я.:!?"«»;@%№()*#,ё\s]/i)
       .required(),

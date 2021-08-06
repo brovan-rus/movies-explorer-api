@@ -14,12 +14,12 @@ const { errorMessages } = require('./utils/constants');
 
 const port = process.env.PORT || 3001;
 const app = express();
+app.use(requestLogger);
 app.use(cors());
 app.use(limiter);
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(requestLogger);
 app.use(routes);
 
 mongoose
