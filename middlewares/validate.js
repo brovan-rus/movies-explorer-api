@@ -10,20 +10,6 @@ const validateEmptyBodyRequest = (req, res, next) => {
   next();
 };
 
-const validateMovieLinks = (req, res, next) => {
-  const { image, trailer, thumbnail } = req.body;
-  if (
-    !(
-      validator.isURL(image, { require_protocol: true })
-      && validator.isURL(trailer, { require_protocol: true })
-      && validator.isURL(thumbnail, { require_protocol: true })
-    )
-  ) {
-    throw new ValidationError(errorMessages.validationErrorMessage);
-  }
-  next();
-};
-
 const validateMovieCreate = celebrate({
   body: Joi.object().keys({
     country: Joi.string()
@@ -39,9 +25,18 @@ const validateMovieCreate = celebrate({
     description: Joi.string()
       .required()
       .regex(/[\wа-я.:!?"«»;@%№()*#,ё\s]/i),
-    image: Joi.string().required(),
-    trailer: Joi.string().required(),
-    thumbnail: Joi.string().required(),
+    image: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) { return value; }
+      return helpers.message('Поле image заполнено некорректно');
+    }),
+    trailer: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) { return value; }
+      return helpers.message('Поле trailer заполнено некорректно');
+    }),
+    thumbnail: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) { return value; }
+      return helpers.message('Поле thumbnail заполнено некорректно');
+    }),
     movieId: Joi.number().required(),
     nameRU: Joi.string()
       .regex(/[а-я.:!?"«»;@%№()*#,ё\s]/i)
@@ -84,7 +79,6 @@ const validateLogin = celebrate({
 
 module.exports = {
   validateEmptyBodyRequest,
-  validateMovieLinks,
   validateMovieIdParams,
   validateLogin,
   validateUserCreate,

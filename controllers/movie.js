@@ -1,13 +1,12 @@
 const Movie = require('../models/movie');
 const { serverMessages } = require('../utils/constants');
 
-const getAllMovies = (req, res, next) => {
-  Movie.find({})
-    .then((allMovies) => res.status(200).send({ data: allMovies }))
-    .catch(next);
+const getAllMovies = async (req, res, next) => {
+  const moviesList = await Movie.find({}).catch(next);
+  res.status(200).send({ data: moviesList });
 };
 
-const createNewMovie = (req, res, next) => {
+const createNewMovie = async (req, res, next) => {
   const {
     country,
     director,
@@ -22,7 +21,7 @@ const createNewMovie = (req, res, next) => {
     movieId,
   } = req.body;
   const owner = req.user;
-  Movie.create({
+  const newMovieEntry = await Movie.create({
     country,
     director,
     duration,
@@ -35,17 +34,15 @@ const createNewMovie = (req, res, next) => {
     thumbnail,
     movieId,
     owner,
-  })
-    .then((newMovieEntry) => res.status(201).send({ data: newMovieEntry }))
-    .catch(next);
+  }).catch(next);
+  res.status(201).send({ data: newMovieEntry });
 };
 
-const deleteMovie = (req, res, next) => {
+const deleteMovie = async (req, res, next) => {
   const { movieId } = req.params;
-  Movie.checkMovieEntryOwner(movieId, req.user)
-    .then(() => Movie.deleteOne({ _id: movieId }))
-    .then(() => res.status(200).send({ message: serverMessages.movieDeleteMessage }))
-    .catch(next);
+  await Movie.checkMovieEntryOwner(movieId, req.user).catch(next);
+  await Movie.deleteOne({ _id: movieId }).catch(next);
+  res.status(200).send({ message: serverMessages.movieDeleteMessage });
 };
 
 module.exports = { getAllMovies, createNewMovie, deleteMovie };

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const { errorMessages } = require('../utils/constants');
@@ -39,7 +40,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return /https?:\/{2}[\w\-._~:/?#[\]@!$&'()*+,;=]+/gi.test(v);
+        return validator.isURL(v);
       },
     },
   },
@@ -49,7 +50,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return /https?:\/{2}[\w\-._~:/?#[\]@!$&'()*+,;=]+/gi.test(v);
+        return validator.isURL(v);
       },
     },
   },
@@ -59,7 +60,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return /https?:\/{2}[\w\-._~:/?#[\]@!$&'()*+,;=]+/gi.test(v);
+        return validator.isURL(v);
       },
     },
   },
