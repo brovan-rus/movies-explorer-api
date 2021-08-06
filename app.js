@@ -12,7 +12,7 @@ const routes = require('./routes/index');
 const errorsHandler = require('./middlewares/errorsHandler');
 const { errorMessages } = require('./utils/constants');
 
-const port = process.env.PORT || 3001;
+const { PORT = 3000, DB_ADDRESS = 'mongodb://localhost:27017/bitfilmsdb' } = process.env;
 const app = express();
 app.use(requestLogger);
 app.use(cors());
@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
 
 mongoose
-  .connect('mongodb://localhost:27017/bitfilmsdb', {
+  .connect(DB_ADDRESS, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
@@ -39,6 +39,6 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorsHandler);
 
-app.listen(port, () => {
-  console.log(`We are live on ${port}`);
+app.listen(PORT, () => {
+  console.log(`We are live on ${PORT}`);
 });
